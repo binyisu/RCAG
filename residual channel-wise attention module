@@ -1,0 +1,15 @@
+def Res_C_Attention_Gate(g, x, F_int):
+    g1 = Conv2D(F_int, (1, 1))(g)
+    x1 = Conv2D(F_int, (1, 1))(x)
+    psi_add = Add()([g1, x1])
+
+    # psi_1 = LeakyReLU(alpha=0.1)(psi)
+    psi_1 = Activation('relu')(psi_add)
+    psi_2 = Conv2D(F_int, (1, 1))(psi_1)
+    psi = GlobalAveragePooling2D()(psi_2)
+    psi = Dense(int(F_int/2), activation='relu')(psi)
+    psi = Dense(F_int, activation=None)(psi)
+    attention_map = Activation('sigmoid')(psi)
+    psi_1_att = Multiply()([psi_2, attention_map])
+    psi_2_att = Add()([psi_1_att, psi_2])
+    return psi_2_att,psi_add
